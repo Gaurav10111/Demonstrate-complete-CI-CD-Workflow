@@ -57,6 +57,12 @@
     groups: docker
     append: yes
 
+- name: Reload user session to apply group changes
+  shell: newgrp docker
+  become_user: ec2-user
+  args:
+    executable: /bin/bash
+
 - name: Install kubectl (latest stable)
   shell: |
     VERSION=$(curl -sL https://dl.k8s.io/release/stable.txt)
