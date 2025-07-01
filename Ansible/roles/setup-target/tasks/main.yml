@@ -10,13 +10,11 @@
       - dnf-plugins-core
     state: latest
 
-- name: Install Docker and dependencies
+- name: Install Docker (Moby for RHEL 9)
   dnf:
     name:
-      - docker
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
+      - moby-engine
+      - moby-cli
     state: present
 
 - name: Ensure /etc/docker directory exists
