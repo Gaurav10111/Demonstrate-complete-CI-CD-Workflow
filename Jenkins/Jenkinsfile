@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "localhost:5000/full-devops-app"
+    }
+
+    stages {
+        stage('Clone Repo') {
+            steps {
+                git 'https://github.com/yourusername/yourrepo.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('App') {
+                    sh 'docker build -t $IMAGE_NAME .'
+                }
+            }
+        }
+
+        stage('Push to Registry') {
+            steps {
+                sh 'docker push $IMAGE_NAME'
+            }
+        }
+
+        stage('Trigger Ansible') {
+            steps {
+                sh 'ansible-playbook -i Ansible/inventory.ini Ansible/site.yml'
+            }
+        }
+    }
+}
+
