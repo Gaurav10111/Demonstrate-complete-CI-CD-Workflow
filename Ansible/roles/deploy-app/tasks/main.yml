@@ -10,7 +10,7 @@
 - name: Template Kubernetes Deployment YAML
   template:
     src: deployment.yml.j2
-    dest: /home/ec2-user/k8s/deployment.yaml
+    dest: /home/ec2-user/k8s/deployment.yml
     owner: ec2-user
 
 - name: Copy Kubernetes Service YAML
