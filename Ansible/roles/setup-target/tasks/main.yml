@@ -57,11 +57,15 @@
     groups: docker
     append: yes
 
-- name: Reload user session to apply group changes
-  shell: newgrp docker
-  become_user: ec2-user
-  args:
-    executable: /bin/bash
+- name: Reboot the server
+  reboot:
+    msg: "Reboot to apply docker group membership"
+    reboot_timeout: 300
+    test_command: whoami  # ensures machine is back online
+
+- name: Wait for system to come back
+  wait_for_connection:
+    timeout: 300
 
 - name: Install kubectl (latest stable)
   shell: |
