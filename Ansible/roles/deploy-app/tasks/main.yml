@@ -7,10 +7,10 @@
     owner: ec2-user
     group: ec2-user
 
-- name: Copy Kubernetes Deployment YAML
-  copy:
-    src: deployment.yml
-    dest: /home/ec2-user/k8s/deployment.yml
+- name: Template Kubernetes Deployment YAML
+  template:
+    src: deployment.yml.j2
+    dest: /home/ec2-user/k8s/deployment.yaml
     owner: ec2-user
 
 - name: Copy Kubernetes Service YAML
