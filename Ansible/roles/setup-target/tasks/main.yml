@@ -1,0 +1,56 @@
+---
+- name: Update system packages
+  dnf:
+    name: "*"
+    state: latest
+
+- name: Install Docker
+  dnf:
+    name: docker
+    state: present
+
+- name: Configure Docker daemon with insecure registry BEFORE starting it
+  copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "insecure-registries": ["{{ registry_host }}:5000"]
+      }
+
+- name: Enable & start Docker
+  systemd:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add ec2-user to docker group
+  user:
+    name: ec2-user
+    groups: docker
+    append: yes
+
+- name: Install kubectl
+  get_url:
+    url: "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    dest: /usr/local/bin/kubectl
+    mode: '0755'
+
+- name: Install Minikube
+  get_url:
+    url: "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64"
+    dest: /usr/local/bin/minikube
+    mode: '0755'
+
+- name: Start Minikube (non-root)
+  become_user: ec2-user
+  shell: |
+    minikube start --driver=docker
+  environment:
+    CHANGE_MINIKUBE_NONE_USER: "true"
+
+- name: Copy kube config to root user
+  shell: |
+    mkdir -p /root/.kube
+    cp /home/ec2-user/.kube/config /root/.kube/config
+  when: ansible_user_id == "ec2-user"
+

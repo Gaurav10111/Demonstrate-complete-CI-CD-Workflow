@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: full-devops-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: full-devops
+  template:
+    metadata:
+      labels:
+        app: full-devops
+    spec:
+      containers:
+      - name: full-devops-container
+        image: localhost:5000/full-devops-app
+        ports:
+        - containerPort: 5000
+

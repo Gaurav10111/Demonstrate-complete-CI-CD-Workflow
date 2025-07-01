@@ -1,0 +1,29 @@
+	---
+- name: Create K8s config directory
+  file:
+    path: /home/ec2-user/k8s
+    state: directory
+    mode: '0755'
+    owner: ec2-user
+    group: ec2-user
+
+- name: Copy Kubernetes Deployment YAML
+  copy:
+    src: deployment.yml
+    dest: /home/ec2-user/k8s/deployment.yml
+    owner: ec2-user
+
+- name: Copy Kubernetes Service YAML
+  copy:
+    src: service.yml
+    dest: /home/ec2-user/k8s/service.yml
+    owner: ec2-user
+
+- name: Apply Deployment
+  become_user: ec2-user
+  shell: kubectl apply -f /home/ec2-user/k8s/deployment.yml
+
+- name: Apply Service
+  become_user: ec2-user
+  shell: kubectl apply -f /home/ec2-user/k8s/service.yml
+
