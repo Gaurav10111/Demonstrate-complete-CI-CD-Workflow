@@ -84,7 +84,7 @@
 - name: Start Minikube using Docker driver
   become_user: ec2-user
   shell: |
-    minikube start --insecure-registry="{{ registry_host }}:5000" --driver=docker
+    minikube start --insecure-registry="{{ registry_host }}:5000" --driver=none
   environment:
     CHANGE_MINIKUBE_NONE_USER: "true"
     PATH: "/usr/local/bin:/usr/bin:/bin"
