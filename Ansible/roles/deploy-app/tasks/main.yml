@@ -1,4 +1,4 @@
-	---
+---
 - name: Create K8s config directory
   file:
     path: /home/ec2-user/k8s
