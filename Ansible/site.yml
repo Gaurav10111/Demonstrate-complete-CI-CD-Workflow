@@ -3,7 +3,7 @@
   hosts: target
   become: true
   vars:
-    registry_host: 172.31.7.66
+    registry_host: "172.31.7.66"
   roles:
     - setup-target
     - deploy-app
