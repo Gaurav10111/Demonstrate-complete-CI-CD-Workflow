@@ -1,27 +1,50 @@
 ---
-- name: Update system packages
+- name: Update base system packages (safe subset)
   dnf:
-    name: "*"
+    name:
+      - curl
+      - wget
+      - git
+      - python3
+      - python3-pip
+      - dnf-plugins-core
     state: latest
 
-- name: Install Docker
+- name: Install Docker and dependencies
   dnf:
-    name: docker
+    name:
+      - docker
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
     state: present
 
-- name: Configure Docker daemon with insecure registry BEFORE starting it
+- name: Ensure /etc/docker directory exists
+  file:
+    path: /etc/docker
+    state: directory
+    mode: '0755'
+
+- name: Configure Docker with insecure registry
   copy:
     dest: /etc/docker/daemon.json
     content: |
       {
         "insecure-registries": ["{{ registry_host }}:5000"]
       }
+    mode: '0644'
 
-- name: Enable & start Docker
+- name: Enable and start Docker service
   systemd:
     name: docker
     state: started
     enabled: true
+
+- name: Wait for Docker socket to be available
+  wait_for:
+    path: /var/run/docker.sock
+    state: present
+    timeout: 30
 
 - name: Add ec2-user to docker group
   user:
@@ -29,26 +52,26 @@
     groups: docker
     append: yes
 
-- name: Install kubectl
-  get_url:
-    url: "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    dest: /usr/local/bin/kubectl
-    mode: '0755'
+- name: Install kubectl (latest)
+  shell: |
+    curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    chmod +x kubectl
+    mv kubectl /usr/local/bin/kubectl
 
 - name: Install Minikube
-  get_url:
-    url: "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64"
-    dest: /usr/local/bin/minikube
-    mode: '0755'
+  shell: |
+    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    install -m 0755 minikube-linux-amd64 /usr/local/bin/minikube
 
-- name: Start Minikube (non-root)
+- name: Start Minikube using Docker driver
   become_user: ec2-user
   shell: |
     minikube start --driver=docker
   environment:
     CHANGE_MINIKUBE_NONE_USER: "true"
+    PATH: "/usr/local/bin:/usr/bin:/bin"
 
-- name: Copy kube config to root user
+- name: Copy kubeconfig to root user
   shell: |
     mkdir -p /root/.kube
     cp /home/ec2-user/.kube/config /root/.kube/config
