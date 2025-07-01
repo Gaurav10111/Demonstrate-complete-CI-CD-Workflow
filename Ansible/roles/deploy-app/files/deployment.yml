@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: full-devops-container
-        image: localhost:5000/full-devops-app
+        image: {{ registry_host }}:5000/full-devops-app
         ports:
         - containerPort: 5000
 
