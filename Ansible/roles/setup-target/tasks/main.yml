@@ -57,6 +57,15 @@
     groups: docker
     append: yes
 
+- name: Install required packages for Minikube 'none' driver
+  dnf:
+    name:
+      - iptables
+      - conntrack
+      - socat
+      - ebtables
+    state: present
+
 - name: Reboot the server
   reboot:
     msg: "Reboot to apply docker group membership"
