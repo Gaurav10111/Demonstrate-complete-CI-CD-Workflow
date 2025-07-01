@@ -10,11 +10,18 @@
       - dnf-plugins-core
     state: latest
 
-- name: Install Docker (Moby for RHEL 9)
+- name: Add Docker CE repository
+  shell: |
+    dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+  args:
+    creates: /etc/yum.repos.d/docker-ce.repo
+
+- name: Install Docker CE packages
   dnf:
     name:
-      - moby-engine
-      - moby-cli
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
     state: present
 
 - name: Ensure /etc/docker directory exists
