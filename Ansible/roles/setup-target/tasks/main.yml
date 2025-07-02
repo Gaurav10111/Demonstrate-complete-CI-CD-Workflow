@@ -57,15 +57,6 @@
     groups: docker
     append: yes
 
-- name: Install required packages for Minikube 'none' driver
-  dnf:
-    name:
-      - iptables
-      - conntrack
-      - socat
-      - ebtables
-    state: present
-
 - name: Reboot the server
   reboot:
     msg: "Reboot to apply docker group membership"
@@ -93,7 +84,7 @@
 - name: Start Minikube using Docker driver
   become_user: ec2-user
   shell: |
-    minikube start --insecure-registry="{{ registry_host }}:5000" --driver=none
+    minikube start --insecure-registry="{{ registry_host }}:5000" --driver=docker
   environment:
     CHANGE_MINIKUBE_NONE_USER: "true"
     PATH: "/usr/local/bin:/usr/bin:/bin"
