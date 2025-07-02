@@ -27,19 +27,3 @@
   become_user: ec2-user
   shell: kubectl apply -f /home/ec2-user/k8s/service.yml
 
-- name: Get Minikube IP
-  become_user: ec2-user
-  shell: minikube ip
-  register: minikube_ip
-  changed_when: false
-
-- name: Forward EC2 port 80 to Minikube NodePort (30007)
-  become: true
-  shell: |
-    iptables -t nat -C PREROUTING -p tcp --dport 80 -j DNAT --to-destination {{ minikube_ip.stdout }}:30007 || \
-    iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination {{ minikube_ip.stdout }}:30007
-    iptables -t nat -C POSTROUTING -j MASQUERADE || \
-    iptables -t nat -A POSTROUTING -j MASQUERADE
-  args:
-    executable: /bin/bash
-
